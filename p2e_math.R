@@ -97,7 +97,7 @@ moderate_hit %>%
 # Hit Algorithm -----------------------------
 hit_chances <- function(min_hit){
   
-  critfail_die <- max(min(min_hit-10,21),1)
+  critfail_die <- max(min(min_hit-9,21),1)
   fail_die <-  max(min(min_hit,21),1)
   hit_die <-  max(min(min_hit-1,20),0)
   crithit_die <-  max(min(min_hit+9,20),0)
