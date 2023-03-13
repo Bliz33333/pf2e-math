@@ -74,6 +74,7 @@ companion_dmg <- dmg_table(companion_spread, ac_strike) + dmg_table(companion_sp
 total_dmg <- ranger_dmg + companion_dmg
 
 thalia_slice <- moderate_slice(total_dmg)
+#save(thalia_slice, file = "thalia_slice_file")
 ranger_slice <- moderate_slice(ranger_dmg)
 companion_slice <- moderate_slice(companion_dmg)
 cantrip_slice <- moderate_slice(cantrip_dmg)

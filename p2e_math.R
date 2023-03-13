@@ -7,6 +7,8 @@ ac_table <- tibble(read.csv("ac.csv"))
 saves_table <- tibble(read.csv("saves.csv"))
 level_dc_table <- tibble(read.csv("level_dc.csv"))
 
+main_stat <-   c(rep(4,9), rep(5,10), 6) + c(rep(0,16), rep(1,4))
+
 skill_types <- c("Level","Full_Focus","Assurance")
 player_skill <- (matrix(nrow = 20, ncol = length(skill_types)))
 colnames(player_skill) <- skill_types
@@ -14,8 +16,7 @@ player_skill[,"Level"] <- 1:20
 player_skill[,"Full_Focus"] <-
   (1:20) +
   c(rep(2,2), rep(4,4), rep(6,8), rep(8,6)) +
-  c(rep(4,9), rep(5,10), 6) +
-  c(rep(0,16), rep(1,4)) +
+  main_stat +
   c(rep(0,2), rep(1,6), rep(2,8), rep(3,4))
 player_skill[,"Assurance"] <-
   (1:20) +
@@ -331,6 +332,11 @@ moderate <- function(l, adj = 0)
   return(ac(level = l,diff = "Moderate", adjustment = adj))
 }
 
+moderate_save <- function(l, adj = 0)
+{
+  return(saves_table$Moderate[saves_table$Level == l] + adj)
+}
+
 high <- function(l, adj = 0)
 {
   return(ac(level = l,diff = "High", adjustment = adj))
@@ -352,16 +358,20 @@ dmg_table <- function(spread, dmg)
   return(dtab) 
 }
 
-# save_dmg_table <- function(spread, dmg)
-# {
-#   dtab <- matrix(data = 0, ncol = ncol(spread), nrow= nrow(spread))
-#   
-#   for (i in 1:ncol(spread)) {
-#     dtab[,i]<-sapply(spread[,i], function(n){sum(hit_chances(n) * dmg[i,])})
-#   }
-#   
-#   return(dtab) 
-# }
+#spread -> table of ntr of attack vs row index ac
+#want ntr of save of row index vs 10 + attack
+save_dmg_table <- function(spread, dmg)
+{
+  dtab <- matrix(data = 0, ncol = ncol(spread), nrow= nrow(spread))
+  
+  spread <- (spread*-1)+10
+  
+  for (i in 1:ncol(spread)) {
+    dtab[,i]<-sapply(spread[,i], function(n){sum(hit_chances(n) * dmg[i,])})
+  }
+
+  return(dtab)
+}
 
 precision_table <- function(spread, attack_mods)
 {
@@ -391,6 +401,21 @@ moderate_slice <- function(spread, width = 5)
   
   for (i in 1:ncol(spread)) {
     tab[,i] <- spread[(moderate(i)-width):(moderate(i)+5),i]
+  }
+  
+  rownames(tab) <- (-width:width)
+  colnames(tab) <- (1:20)
+  
+  return(tab)
+  
+}
+
+moderate_slice_save <- function(spread, width = 5)
+{
+  tab <- matrix(data = 0, ncol = ncol(spread), nrow = 2*width+1)
+  
+  for (i in 1:ncol(spread)) {
+    tab[,i] <- spread[(moderate_save(i)-width):(moderate_save(i)+5),i]
   }
   
   rownames(tab) <- (-width:width)
